@@ -5,4 +5,6 @@
     <string name="videoId">5269117590001</string>
     <string name="playlistId">5280100152001</string>
     <string name="drmVideoId">4617085793001</string>
+    <string name="download_button">"Download"</string>
+    <string name="playlocal_button">"Play Local"</string>
 </resources>

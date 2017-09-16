@@ -2,6 +2,8 @@ package net.rainville.offlinedrm;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import com.brightcove.player.edge.Catalog;
 import com.brightcove.player.edge.PlaylistListener;
@@ -15,6 +17,9 @@ import com.brightcove.player.model.Video;
 
 public class MainActivity extends BrightcovePlayer {
 
+    private Button mDownloadButton;
+    private Button mPlayLocalButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +28,14 @@ public class MainActivity extends BrightcovePlayer {
         // getVideo(R.string.videoId);
         // getPlaylist(R.string.playlistId);
         getVideo(R.string.drmVideoId);
+
+        mDownloadButton = (Button) findViewById(R.id.true_button);
+        mDownloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Do something useful.
+            }
+        });
 
     }
 
