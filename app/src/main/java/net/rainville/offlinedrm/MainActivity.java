@@ -29,7 +29,7 @@ public class MainActivity extends BrightcovePlayer {
         // getPlaylist(R.string.playlistId);
         getVideo(R.string.drmVideoId);
 
-        mDownloadButton = (Button) findViewById(R.id.true_button);
+        mDownloadButton = (Button) findViewById(R.id.download_button);
         mDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
