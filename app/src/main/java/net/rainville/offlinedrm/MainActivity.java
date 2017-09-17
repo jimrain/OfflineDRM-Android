@@ -37,6 +37,14 @@ public class MainActivity extends BrightcovePlayer {
             }
         });
 
+        mPlayLocalButton = (Button) findViewById(R.id.playlocal_button);
+        mPlayLocalButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Do something useful.
+            }
+        });
+
     }
 
     public void getVideo(int video_id) {
