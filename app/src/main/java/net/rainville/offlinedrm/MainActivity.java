@@ -14,6 +14,8 @@ import com.brightcove.player.edge.Catalog;
 import com.brightcove.player.edge.PlaylistListener;
 import com.brightcove.player.edge.VideoListener;
 import com.brightcove.player.event.EventEmitter;
+import com.brightcove.player.event.EventListener;
+import com.brightcove.player.event.EventType;
 import com.brightcove.player.model.Playlist;
 import com.brightcove.player.view.BrightcovePlayer;
 import com.brightcove.player.view.BrightcoveExoPlayerVideoView;
@@ -30,8 +32,12 @@ import com.brightcove.player.offline.MediaDownloadable;
 import com.brightcove.player.offline.RequestConfig;
 import com.brightcove.player.store.DownloadRequest;
 import com.brightcove.player.view.BrightcovePlayer;
+import com.brightcove.player.edge.OfflineCatalog;
 
 import java.io.Serializable;
+// import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 public class MainActivity extends BrightcovePlayer {
@@ -39,105 +45,71 @@ public class MainActivity extends BrightcovePlayer {
     private static final String TAG = "OfflineDRM";
     private Button mDownloadButton;
     private Button mPlayLocalButton;
+    private Button mGetLicenseButton;
     private Button mCancelDownloadButton;
     private Video mTargetVideo;
+    private Video mOfflineVideo;
+    private OfflineCatalog offlineCatalog;
+
+    private String mTargetVideoId = "5508063544001";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // getVideo(R.string.videoId);
-        // getPlaylist(R.string.playlistId);
-        getVideo(R.string.drmVideoId);
+        EventEmitter eventEmitter = brightcoveVideoView.getEventEmitter();
+        offlineCatalog = new OfflineCatalog(getApplicationContext(), eventEmitter,
+                getString(R.string.account), getString(R.string.policy));
 
         mDownloadButton = (Button) findViewById(R.id.download_button);
         mDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RequestConfig requestConfig = new RequestConfig();
-                requestConfig.setNotificationVisibility(RequestConfig.VISIBILITY_VISIBLE);
-                requestConfig.setMobileDownloadAllowed(true);
 
-                // Log.i(TAG, String.format("Download path: %s", requestConfig.getDownloadPath().toString()));
+                offlineCatalog.findVideoByID(mTargetVideoId, new VideoListener() {
+                    @Override
+                    public void onVideo(Video newVideo) {
+                        // Log.i(TAG, String.format("The Video ID: %d", theVidId));
+                        Log.i(TAG, "Got DRM Video.");
+                        getLicense(newVideo);
+                    }
 
-                // Create the DashDownloadable with the video object
-                DashDownloadable dashDownloadable = new DashDownloadable(getApplicationContext(), mTargetVideo, downloadEventListener, requestConfig);
-                dashDownloadable.requestDownload();
+                    @Override
+                    public void onError(String s) {
+                        throw new RuntimeException(s);
+                    }
+                });
             }
         });
+
 
         mPlayLocalButton = (Button) findViewById(R.id.playlocal_button);
         mPlayLocalButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Do something useful.
-            }
-        });
-
-        mCancelDownloadButton = (Button) findViewById(R.id.cancel_download_button);
-        mCancelDownloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RequestConfig requestConfig = new RequestConfig();
-                requestConfig.setNotificationVisibility(RequestConfig.VISIBILITY_VISIBLE);
-                requestConfig.setMobileDownloadAllowed(true);
-
-                // Log.i(TAG, String.format("Download path: %s", requestConfig.getDownloadPath().toString()));
-
-                // Create the DashDownloadable with the video object
-                DashDownloadable dashDownloadable = new DashDownloadable(getApplicationContext(), mTargetVideo, downloadEventListener, requestConfig);
-                dashDownloadable.cancelDownload();
+                Video theVideo = offlineCatalog.findOfflineVideoById(mTargetVideoId);
+                brightcoveVideoView.add(theVideo);
+                brightcoveVideoView.start();
             }
         });
 
     }
 
-    public void getVideo(int video_id) {
-        brightcoveVideoView = (BrightcoveExoPlayerVideoView) findViewById(R.id.brightcove_video_view);
-        EventEmitter eventEmitter = brightcoveVideoView.getEventEmitter();
-        Catalog catalog = new Catalog(eventEmitter, getString(R.string.account), getString(R.string.policy));
+    public void getLicense(Video video) {
+        Date exp_date = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(exp_date);
+        cal.add(Calendar.DATE, 7);
+        exp_date = cal.getTime();
 
-        catalog.findVideoByID(getString(video_id), new VideoListener() {
-
-            // Add the video found to the queue with add().
-            // Start playback of the video with start().
-            @Override
-            public void onVideo(Video video) {
-                brightcoveVideoView.add(video);
-                brightcoveVideoView.start();
-                mTargetVideo = video;
-            }
-
-            @Override
-            public void onError(String s) {
-                throw new RuntimeException(s);
-            }
-        });
-
+        offlineCatalog.requestRentalLicense(video, exp_date, 100000, licenseEventListener);
     }
 
-    public void getPlaylist(int playlist_id) {
-        brightcoveVideoView = (BrightcoveExoPlayerVideoView) findViewById(R.id.brightcove_video_view);
-        EventEmitter eventEmitter = brightcoveVideoView.getEventEmitter();
-        Catalog catalog = new Catalog(eventEmitter, getString(R.string.account), getString(R.string.policy));
-
-        catalog.findPlaylistByID(getString(playlist_id), new PlaylistListener() {
-
-            // Add the video found to the queue with add().
-            // Start playback of the video with start().
-            @Override
-            public void onPlaylist(Playlist playlist){
-                brightcoveVideoView.addAll(playlist.getVideos());
-                brightcoveVideoView.start();
-            }
-
-            @Override
-            public void onError(String s) {
-                throw new RuntimeException(s);
-            }
-        });
-
+    public void downloadVideo(Video video) {
+        offlineCatalog.addDownloadEventListener(downloadEventListener);
+        DownloadStatus dls = offlineCatalog.downloadVideo(video);
+        Log.i(TAG, String.format("Download Status: %s", dls.toString()));
     }
 
     /**
@@ -216,6 +188,39 @@ public class MainActivity extends BrightcovePlayer {
             String message = showToast(
                     "Failed to download '%s' video: Error #%d", video.getName(), status.getReason());
             Log.e(TAG, message);
+        }
+    };
+
+    private final EventListener licenseEventListener = new EventListener() {
+        @Override
+        public void processEvent(Event event) {
+
+            final String type = event.getType();
+            final Video video = (Video) event.properties.get(Event.VIDEO);
+
+            switch (type) {
+                case EventType.ODRM_LICENSE_ACQUIRED: {
+                    // videoListAdapter.notifyVideoChanged(video);
+                    String message = showToast(
+                            "Successfully downloaded license for '%s' video", video.getName());
+                    Log.i(TAG, message);
+                    downloadVideo(video);
+                    break;
+                }
+                case EventType.ODRM_PLAYBACK_NOT_ALLOWED:
+                case EventType.ODRM_SOURCE_NOT_FOUND: {
+                    String message = showToast(
+                            "Failed to downloaded license for '%s' video: %s", video.getName(), type);
+                    Log.w(TAG, message);
+                    break;
+                }
+                case EventType.ODRM_LICENSE_ERROR: {
+                    String message = showToast(
+                            "Error encountered while downloading license for '%s' video", video.getName());
+                    Log.e(TAG, message, (Throwable) event.properties.get(Event.ERROR));
+                    break;
+                }
+            }
         }
     };
 

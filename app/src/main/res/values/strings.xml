@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Offline DRM</string>
     <string name="account">4517911906001</string>
-    <string name="policy">"BCpkADawqM3dCmAPU7-jl0hHWW8097dehsjhdHYeCZVO3HbClNSwbtBpZkhuDuab141BnGkFL_xvPCif9v6Sz5A27pFUo8-qFuq42J6vzrXnLkmeLzGkQ1HzNdow2rI0qmhyPaEEhSGTPpW9</string>
+    <string name="policy">"BCpkADawqM3dCmAPU7-jl0hHWW8097dehsjhdHYeCZVO3HbClNSwbtBpZkhuDuab141BnGkFL_xvPCif9v6Sz5A27pFUo8-qFuq42J6vzrXnLkmeLzGkQ1HzNdow2rI0qmhyPaEEhSGTPpW9"</string>
     <string name="videoId">5269117590001</string>
     <string name="playlistId">5280100152001</string>
     <string name="drmVideoId">5508063544001</string>
