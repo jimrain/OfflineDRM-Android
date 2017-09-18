@@ -7,4 +7,6 @@
     <string name="drmVideoId">4617085793001</string>
     <string name="download_button">"Download"</string>
     <string name="playlocal_button">"Play Local"</string>
+    <string name="cancel_download_button">"Cancel Download"</string>
+
 </resources>

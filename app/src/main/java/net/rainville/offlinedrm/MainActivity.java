@@ -39,6 +39,7 @@ public class MainActivity extends BrightcovePlayer {
     private static final String TAG = "OfflineDRM";
     private Button mDownloadButton;
     private Button mPlayLocalButton;
+    private Button mCancelDownloadButton;
     private Video mTargetVideo;
 
     @Override
@@ -58,6 +59,8 @@ public class MainActivity extends BrightcovePlayer {
                 requestConfig.setNotificationVisibility(RequestConfig.VISIBILITY_VISIBLE);
                 requestConfig.setMobileDownloadAllowed(true);
 
+                // Log.i(TAG, String.format("Download path: %s", requestConfig.getDownloadPath().toString()));
+
                 // Create the DashDownloadable with the video object
                 DashDownloadable dashDownloadable = new DashDownloadable(getApplicationContext(), mTargetVideo, downloadEventListener, requestConfig);
                 dashDownloadable.requestDownload();
@@ -69,6 +72,22 @@ public class MainActivity extends BrightcovePlayer {
             @Override
             public void onClick(View v) {
                 // Do something useful.
+            }
+        });
+
+        mCancelDownloadButton = (Button) findViewById(R.id.cancel_download_button);
+        mCancelDownloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RequestConfig requestConfig = new RequestConfig();
+                requestConfig.setNotificationVisibility(RequestConfig.VISIBILITY_VISIBLE);
+                requestConfig.setMobileDownloadAllowed(true);
+
+                // Log.i(TAG, String.format("Download path: %s", requestConfig.getDownloadPath().toString()));
+
+                // Create the DashDownloadable with the video object
+                DashDownloadable dashDownloadable = new DashDownloadable(getApplicationContext(), mTargetVideo, downloadEventListener, requestConfig);
+                dashDownloadable.cancelDownload();
             }
         });
 
