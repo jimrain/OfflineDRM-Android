@@ -10,48 +10,41 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.brightcove.player.edge.Catalog;
-import com.brightcove.player.edge.PlaylistListener;
 import com.brightcove.player.edge.VideoListener;
 import com.brightcove.player.event.EventEmitter;
 import com.brightcove.player.event.EventListener;
 import com.brightcove.player.event.EventType;
-import com.brightcove.player.model.Playlist;
 import com.brightcove.player.view.BrightcovePlayer;
-import com.brightcove.player.view.BrightcoveExoPlayerVideoView;
-import com.brightcove.player.media.DeliveryType;
 import com.brightcove.player.model.Video;
 
 import com.brightcove.player.event.Event;
-import com.brightcove.player.media.DeliveryType;
-import com.brightcove.player.model.Video;
-import com.brightcove.player.network.DownloadManager;
 import com.brightcove.player.network.DownloadStatus;
-import com.brightcove.player.offline.DashDownloadable;
 import com.brightcove.player.offline.MediaDownloadable;
-import com.brightcove.player.offline.RequestConfig;
-import com.brightcove.player.store.DownloadRequest;
-import com.brightcove.player.view.BrightcovePlayer;
 import com.brightcove.player.edge.OfflineCatalog;
 
 import java.io.Serializable;
-// import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends BrightcovePlayer {
 
     private static final String TAG = "OfflineDRM";
     private Button mDownloadButton;
     private Button mPlayLocalButton;
-    private Button mGetLicenseButton;
-    private Button mCancelDownloadButton;
-    private Video mTargetVideo;
-    private Video mOfflineVideo;
+    private Button mDeleteVideoButton;
+
     private OfflineCatalog offlineCatalog;
 
     private String mTargetVideoId = "5508063544001";
+
+    /**
+     * Specifies how long the content can be consumed after the start of playback as total number
+     * of milliseconds. The default value is forty-eight hours.
+     */
+    private static long DEFAULT_RENTAL_PLAY_DURATION = TimeUnit.HOURS.toMillis(48);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,14 +76,25 @@ public class MainActivity extends BrightcovePlayer {
             }
         });
 
-
         mPlayLocalButton = (Button) findViewById(R.id.playlocal_button);
         mPlayLocalButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Video theVideo = offlineCatalog.findOfflineVideoById(mTargetVideoId);
+                Log.i(TAG, theVideo.getLicenseExpiryDate().toString());
+                brightcoveVideoView.stopPlayback();
+                brightcoveVideoView.clear();
                 brightcoveVideoView.add(theVideo);
                 brightcoveVideoView.start();
+            }
+        });
+
+        mDeleteVideoButton = (Button) findViewById(R.id.delete_video_button);
+        mDeleteVideoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Video> videoList = offlineCatalog.findAllVideoDownload(DownloadStatus.STATUS_COMPLETE);
+                Log.i(TAG, videoList.toString());
             }
         });
 
@@ -103,7 +107,7 @@ public class MainActivity extends BrightcovePlayer {
         cal.add(Calendar.DATE, 7);
         exp_date = cal.getTime();
 
-        offlineCatalog.requestRentalLicense(video, exp_date, 100000, licenseEventListener);
+        offlineCatalog.requestRentalLicense(video, exp_date, DEFAULT_RENTAL_PLAY_DURATION, licenseEventListener);
     }
 
     public void downloadVideo(Video video) {
