@@ -94,7 +94,11 @@ public class MainActivity extends BrightcovePlayer {
             @Override
             public void onClick(View v) {
                 List<Video> videoList = offlineCatalog.findAllVideoDownload(DownloadStatus.STATUS_COMPLETE);
-                Log.i(TAG, videoList.toString());
+                for (Video video : videoList) {
+                    Log.i(TAG, video.toString());
+                    offlineCatalog.deleteVideo(video.getId());
+                }
+
             }
         });
 

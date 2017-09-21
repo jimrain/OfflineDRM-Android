@@ -25,18 +25,17 @@
             android:layout_height="wrap_content"
             android:text="@string/download_button" />
 
+        <Button
+            android:id="@+id/playlocal_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/playlocal_button" />
 
         <Button
             android:id="@+id/delete_video_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete_video_button" />
-
-        <Button
-            android:id="@+id/playlocal_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/playlocal_button" />
 
     </LinearLayout>
 
