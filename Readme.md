@@ -39,3 +39,6 @@ makes the call to download the video.
 There is logging in pretty much every aspect of this app. To get a good sense of what is going on
 look at the Android Monitor and filter on the tag OfflineDRM.
 
+## Customizing the app to use your Videocloud account. 
+The specific Videocloud information is defined in res/values/string.xml. Change the values of 
+account, policy and DRMVideoID to point to your data. 
